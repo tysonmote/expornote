@@ -9,39 +9,38 @@ import (
 	"strings"
 )
 
-var (
-	importPath string
-	exportPath string
-)
-
 func usage() {
-	fmt.Fprintf(os.Stderr, `Usage: expornote <.enex file>`)
+	fmt.Fprintf(os.Stderr, `Usage: expornote <.enex file> [<.enex file>]`)
 	os.Exit(1)
 }
 
 func init() {
-	if len(os.Args) != 2 {
+	if len(os.Args) < 2 {
 		usage()
 	}
-
-	importPath = os.Args[1]
-	if len(importPath) == 0 {
-		usage()
-	}
-
-	path := filepath.Dir(importPath)
-	name := strings.Split(filepath.Base(importPath), ".")[0]
-	exportPath = filepath.Join(path, name)
 }
 
 func main() {
-	archive, err := os.Open(importPath)
+	for _, inPath := range os.Args[1:] {
+		if len(inPath) == 0 {
+			usage()
+		}
+
+		name := strings.Split(filepath.Base(inPath), ".")[0]
+		outPath := filepath.Join(filepath.Dir(inPath), name)
+
+		export(inPath, outPath)
+	}
+}
+
+func export(inPath, outPath string) {
+	archive, err := os.Open(inPath)
 	if err != nil {
 		panic(err)
 	}
 	defer archive.Close()
 
-	err = os.Mkdir(exportPath, 0777)
+	err = os.Mkdir(outPath, 0777)
 	if err != nil {
 		panic(err)
 	}
@@ -67,9 +66,8 @@ func main() {
 			if element.Name.Local == "note" {
 				var n Note
 				decoder.DecodeElement(&n, &element)
-				n.ExportTo(exportPath)
+				n.ExportTo(outPath)
 			}
 		}
 	}
-
 }

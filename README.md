@@ -26,9 +26,9 @@ Install `pandoc` and `expornote`:
     brew install pandoc
     go install github.com/tysonmote/expornote
 
-Run `expornote` on your exported Evernote notes:
+Run `expornote` on your Evernote export files:
 
-    expornote MyNotes.enex
+    expornote MyNotes.enex MyOtherNotes.enex
 
 ## Limitations
 
